@@ -71,9 +71,10 @@ public final class QuoteSyncJob {
             while (iterator.hasNext()) {
                 String symbol = iterator.next();
 
-
                 Stock stock = quotes.get(symbol);
                 StockQuote quote = stock.getQuote();
+
+                String name = stock.getName();
 
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
@@ -94,6 +95,7 @@ public final class QuoteSyncJob {
 
                 ContentValues quoteCV = new ContentValues();
                 quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
+                quoteCV.put(Contract.Quote.COLUMN_NAME, name);
                 quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
                 quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                 quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
