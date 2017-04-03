@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Returns a CursorLoader thas automatically updates
+        // itself ("forceLoad") when provider data change.
         return new CursorLoader(this,
             Contract.Quote.URI,
             Contract.Quote.QUOTE_COLUMNS.toArray(new String[]{}),
