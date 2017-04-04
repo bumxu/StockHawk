@@ -1,13 +1,15 @@
 package com.udacity.stockhawk.ui;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.app.ShareCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,15 +29,21 @@ import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
+
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
     SwipeRefreshLayout.OnRefreshListener,
     StockAdapter.StockAdapterOnClickHandler {
 
     private static final int STOCK_LOADER = 0;
+
+    private BroadcastReceiver mIntentReceiver;
+    private IntentFilter mIntentFilter;
 
     @BindView(R.id.recycler_view) RecyclerView stockRecyclerView;
     @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
@@ -58,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        // Broadcast receiver for not found symbols during sync job
+        mIntentReceiver = new UnknownSymbolsReceiver();
+        mIntentFilter = new IntentFilter("com.udacity.stockhawk.ACTION_UNKNOWN_SYMBOLS");
 
         adapter = new StockAdapter(this, this);
         stockRecyclerView.setAdapter(adapter);
@@ -83,8 +96,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
             }
         }).attachToRecyclerView(stockRecyclerView);
+    }
 
+    @Override
+    protected void onResume() {
+        // Register broadcast receiver for not found symbols
+        registerReceiver(mIntentReceiver, mIntentFilter);
+        super.onResume();
+    }
 
+    @Override
+    protected void onPause() {
+        // Unregister broadcast receiver for not found symbols
+        unregisterReceiver(mIntentReceiver);
+        super.onPause();
     }
 
     private boolean networkUp() {
@@ -190,5 +215,40 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * BroadcastReceiver for not found symbols during sync job.
+     */
+    private final class UnknownSymbolsReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            // Get the list of unknown symbols
+            final List<String> symbols = intent.getStringArrayListExtra("symbols");
+
+            // Remove from the system
+            for (String symbol : symbols) {
+                PrefUtils.removeStock(context, symbol);
+                context.getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
+            }
+
+            // Show an elegant message
+            Snackbar
+                .make(
+                    findViewById(R.id.root),
+                    getString(R.string.snackbar_invalid_symbols) + " " + TextUtils.join(", ", symbols),
+                    4000)
+                .setAction("OK", new EmptyClickListener())
+                .show();
+        }
+    }
+
+    /**
+     * An empty OnClickListener for reusability, nothing more.
+     */
+    private static final class EmptyClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) { /* NOTHING */ }
     }
 }
