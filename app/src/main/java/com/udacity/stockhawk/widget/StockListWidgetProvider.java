@@ -47,8 +47,10 @@ public class StockListWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        // If intent is our "data updated!!" action
-        if (intent.getAction().equals(QuoteSyncJob.ACTION_DATA_UPDATED)) {
+        // If intent is our "data updated!!" or system's "widget updated!!" action
+        if (intent.getAction().equals(QuoteSyncJob.ACTION_DATA_UPDATED)
+            || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
+
             final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
             // Get widgets from this provider

@@ -50,6 +50,7 @@
             android:label="Stock Hawk List">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="com.udacity.stockhawk.ACTION_DATA_UPDATED"/>
             </intent-filter>
 
             <meta-data
@@ -57,9 +58,10 @@
                 android:resource="@xml/stocklist_widget_definition"/>
         </receiver>
 
-        <service android:name=".widget.StockListWigetRemoteViewsService"
-                 android:exported="false"
-                 android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <service
+            android:name=".widget.StockListWigetRemoteViewsService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
     </application>
 
 </manifest>

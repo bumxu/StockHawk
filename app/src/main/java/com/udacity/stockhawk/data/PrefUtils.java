@@ -1,6 +1,8 @@
 package com.udacity.stockhawk.data;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -86,6 +88,10 @@ public final class PrefUtils {
         }
 
         editor.apply();
+
+        // Update widget
+        Intent updateWidgetIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        context.sendBroadcast(updateWidgetIntent);
     }
 
 }
