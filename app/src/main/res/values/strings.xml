@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
     <string name="app_name">Stock Hawk</string>
 
@@ -33,4 +35,7 @@
     <string name="toast_no_connectivity">Will refresh when network available.</string>
 
     <string name="snackbar_invalid_symbols">The following symbols were not found:</string>
+
+    <!-- StockList Widget -->
+    <string name="widget_loading_msg">Waiting for data…</string>
 </resources>
