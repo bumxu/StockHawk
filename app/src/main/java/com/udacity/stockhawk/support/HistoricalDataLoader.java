@@ -1,4 +1,4 @@
-package com.udacity.stockhawk.ui;
+package com.udacity.stockhawk.support;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -17,7 +17,7 @@ import java.util.Scanner;
 /**
  * Loader for the historical data of a symbol.
  */
-class HistoricalDataLoader extends AsyncTaskLoader<List<Pair<Date, Float>>> {
+public class HistoricalDataLoader extends AsyncTaskLoader<List<Pair<Date, Float>>> {
     // Symbol owner of the data
     private final String mSymbol;
     // Cached results
@@ -29,7 +29,7 @@ class HistoricalDataLoader extends AsyncTaskLoader<List<Pair<Date, Float>>> {
      * @param context - The context from which the loader is created.
      * @param symbol  - The symbol whose data will be loaded.
      */
-    HistoricalDataLoader(final Context context, final String symbol) {
+    public HistoricalDataLoader(final Context context, final String symbol) {
         super(context);
 
         this.mSymbol = symbol;

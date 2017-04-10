@@ -7,7 +7,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -18,6 +20,7 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.support.HistoricalDataLoader;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +52,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
         mSymbol = getIntent().getStringExtra("symbol");
 
-        getSupportActionBar().setTitle(mSymbol);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        ((TextView) findViewById(R.id.symbol)).setText(mSymbol);
 
         LoaderManager loaderManager = getSupportLoaderManager();
         if (loaderManager.getLoader(HISTORICAL_DATA_LOADER) == null) {
