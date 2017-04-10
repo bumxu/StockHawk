@@ -108,7 +108,7 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
                         ? R.drawable.percent_change_pill_green
                         : R.drawable.percent_change_pill_red);
 
-                // Set click action (2nd part)
+                // Set click action for list items (2nd part)
                 final Intent fillInIntent = new Intent()
                     .putExtra("symbol", symbol);
                 views.setOnClickFillInIntent(R.id.quo2, fillInIntent);

@@ -19,6 +19,20 @@
         tools:visibility="visible"/>
 
     <TextView
+        android:id="@+id/text_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/widget_loading_msg"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="@string/widget_empty_msg"
+        android:textColor="#aaffffff"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <TextView
         android:id="@+id/text_loading_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,6 +40,7 @@
         android:layout_centerVertical="true"
         android:contentDescription="@string/widget_loading_msg"
         android:text="@string/widget_loading_msg"
+        android:textAlignment="center"
         android:textColor="#aaffffff"
         android:textSize="16sp"
         android:textStyle="italic"/>
