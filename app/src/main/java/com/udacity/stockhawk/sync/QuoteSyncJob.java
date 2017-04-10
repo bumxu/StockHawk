@@ -73,8 +73,17 @@ public final class QuoteSyncJob {
 
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
+            // Update ShredPreference (maybe it has changed during the request)
+            stockPref = PrefUtils.getStocks(context);
+
             while (iterator.hasNext()) {
                 String symbol = iterator.next();
+
+                // If now it's not included, ignore
+                // (This only REDUCE the failure probability)
+                if (!stockPref.contains(symbol)) {
+                    continue;
+                }
 
                 Stock stock;
                 String name;
@@ -121,7 +130,7 @@ public final class QuoteSyncJob {
 
             }
 
-            // If there is unknown symbols notify listeners
+            // If there is unknown symbols, notify listeners
             if (unknownSymbols.size() > 0) {
                 final Intent unknownSymbolsIntent = new Intent(ACTION_UNKNOWN_SYMBOLS);
                 unknownSymbolsIntent.putStringArrayListExtra("symbols", unknownSymbols);
