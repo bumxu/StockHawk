@@ -86,10 +86,10 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
                 final String displayMode = PrefUtils.getDisplayMode(getApplicationContext());
 
                 // Prepare views handler
-                final RemoteViews views = new RemoteViews(getPackageName(), R.layout.stocklist_widget_item);
+                final RemoteViews views = new RemoteViews(getPackageName(), R.layout.item_widget_quote);
 
                 // Set the name
-                views.setTextViewText(R.id.symbol, symbol);
+                views.setTextViewText(R.id.text_symbol, symbol);
                 // Set the formated price
                 views.setTextViewText(R.id.price, dollarFormat.format(price));
 
@@ -105,8 +105,8 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
                 // Set the background color for variation
                 views.setInt(R.id.change, "setBackgroundResource",
                     (absChange >= 0)
-                        ? R.drawable.percent_change_pill_green
-                        : R.drawable.percent_change_pill_red);
+                        ? R.drawable.change_pill_green
+                        : R.drawable.change_pill_red);
 
                 // Set click action for list items (2nd part)
                 final Intent fillInIntent = new Intent()

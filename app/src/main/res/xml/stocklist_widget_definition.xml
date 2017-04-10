@@ -2,11 +2,11 @@
 
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:initialKeyguardLayout="@layout/stocklist_widget"
-    android:initialLayout="@layout/stocklist_widget"
+    android:initialKeyguardLayout="@layout/widget_stocklist"
+    android:initialLayout="@layout/widget_stocklist"
     android:minHeight="110dp"
     android:minWidth="180dp"
-    android:previewImage="@drawable/stocklist_widget_preview"
+    android:previewImage="@drawable/preview_stocklist_widget"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen">

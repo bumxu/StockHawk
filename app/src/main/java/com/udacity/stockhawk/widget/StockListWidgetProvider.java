@@ -23,7 +23,7 @@ public class StockListWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Each widget of this kind...
         for (int appWidgetId : appWidgetIds) {
-            final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.stocklist_widget);
+            final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_stocklist);
 
             // Set the adapter service for listview
             views.setRemoteAdapter(R.id.list_stocks,
@@ -68,7 +68,7 @@ public class StockListWidgetProvider extends AppWidgetProvider {
                 new ComponentName(context, getClass()));
 
             // Show list or "empty" message
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.stocklist_widget);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_stocklist);
             showListOrEmpty(context, views);
             appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, views);
 

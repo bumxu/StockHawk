@@ -15,7 +15,7 @@
         android:dividerHeight="1dp"
         android:padding="4dp"
         android:visibility="invisible"
-        tools:listitem="@layout/stocklist_widget_item"
+        tools:listitem="@layout/item_widget_quote"
         tools:visibility="visible"/>
 
     <TextView

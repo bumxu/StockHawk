@@ -15,7 +15,7 @@
 
     <!-- Symbol -->
     <TextView
-        android:id="@+id/symbol"
+        android:id="@+id/text_symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|center_vertical"
@@ -51,7 +51,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginStart="8dp"
         android:layout_weight="1"
-        android:background="@drawable/percent_change_pill_green"
+        android:background="@drawable/change_pill_green"
         android:ellipsize="end"
         android:maxLines="1"
         android:paddingBottom="1dp"

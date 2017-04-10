@@ -1,5 +1,6 @@
 package com.udacity.stockhawk.ui;
 
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -16,8 +18,10 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +39,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 
+import static com.udacity.stockhawk.R.id.text_symbol;
+
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
     SwipeRefreshLayout.OnRefreshListener,
@@ -42,24 +48,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int STOCK_LOADER = 0;
 
+    private StockAdapter adapter;
+
     private BroadcastReceiver mIntentReceiver;
     private IntentFilter mIntentFilter;
 
     @BindView(R.id.recycler_view) RecyclerView stockRecyclerView;
     @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.error) TextView error;
-
-    private StockAdapter adapter;
-
-    @Override
-    public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
-
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("symbol", symbol);
-
-        startActivity(intent);
-    }
+    @BindView(R.id.text_error_msg) TextView errorTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +64,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Broadcast receiver for not found symbols during sync job
         mIntentReceiver = new UnknownSymbolsReceiver();
         mIntentFilter = new IntentFilter("com.udacity.stockhawk.ACTION_UNKNOWN_SYMBOLS");
 
         adapter = new StockAdapter(this, this);
+        stockRecyclerView.setHasFixedSize(true);
         stockRecyclerView.setAdapter(adapter);
         stockRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -112,13 +112,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onPause();
     }
 
-    private boolean networkUp() {
-        ConnectivityManager cm =
-            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
-    }
-
     @Override
     public void onRefresh() {
 
@@ -126,23 +119,55 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_network));
-            error.setVisibility(View.VISIBLE);
+            showErrorMessage(R.string.error_no_network);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(this, R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
         } else if (PrefUtils.getStocks(this).size() == 0) {
             swipeRefreshLayout.setRefreshing(false);
-            error.setText(getString(R.string.error_no_stocks));
-            error.setVisibility(View.VISIBLE);
+            showErrorMessage(R.string.error_no_stocks);
         } else {
-            error.setVisibility(View.GONE);
+            hideErrorMessage();
         }
     }
+
+    @Override
+    public void onClick(final StockAdapter.ClickDetails details, final View view) {
+        Timber.d("Symbol clicked: %s", text_symbol);
+
+        final Intent intent = details.getIntent().setClass(this, DetailActivity.class);
+
+        final ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+            this,
+            Pair.create(findViewById(R.id.toolbar), "toolbar"),
+            Pair.create(view.findViewById(R.id.background), "background")
+        );
+
+        startActivity(intent, options.toBundle());
+    }
+
+
+    private void showErrorMessage(@StringRes int msgResource) {
+        errorTextView.setText(getString(msgResource));
+        errorTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideErrorMessage() {
+        errorTextView.setVisibility(View.GONE);
+    }
+
+    private boolean networkUp() {
+        ConnectivityManager cm =
+            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
         new AddStockDialog().show(getFragmentManager(), "StockDialogFragment");
     }
+
 
     void addStock(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
@@ -159,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // Returns a CursorLoader thas automatically updates
@@ -174,7 +200,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         swipeRefreshLayout.setRefreshing(false);
 
         if (data.getCount() != 0) {
-            error.setVisibility(View.GONE);
+            hideErrorMessage();
+        } else {
+            showErrorMessage(R.string.error_no_stocks);
         }
         adapter.setCursor(data);
     }

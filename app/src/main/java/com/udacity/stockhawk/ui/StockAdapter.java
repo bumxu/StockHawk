@@ -1,7 +1,7 @@
 package com.udacity.stockhawk.ui;
 
-
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
 
 class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
     private final Context context;
@@ -61,7 +62,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
     @Override
     public StockViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View item = LayoutInflater.from(context).inflate(R.layout.list_item_quote, parent, false);
+        View item = LayoutInflater.from(context).inflate(R.layout.item_quote, parent, false);
 
         return new StockViewHolder(item);
     }
@@ -79,9 +80,9 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
         float percentageChange = mCursor.getFloat(Contract.Quote.POSITION_PERCENTAGE_CHANGE);
 
         if (rawAbsoluteChange > 0) {
-            holder.change.setBackgroundResource(R.drawable.percent_change_pill_green);
+            holder.change.setBackgroundResource(R.drawable.change_pill_green);
         } else {
-            holder.change.setBackgroundResource(R.drawable.percent_change_pill_red);
+            holder.change.setBackgroundResource(R.drawable.change_pill_red);
         }
 
         String change = dollarFormatWithPlus.format(rawAbsoluteChange);
@@ -105,12 +106,12 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
     }
 
     interface StockAdapterOnClickHandler {
-        void onClick(String symbol);
+        void onClick(ClickDetails details, View view);
     }
 
     class StockViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.symbol) TextView symbol;
-        @BindView(R.id.name) TextView name;
+        @BindView(R.id.text_symbol) TextView symbol;
+        @BindView(R.id.text_name) TextView name;
         @BindView(R.id.price) TextView price;
         @BindView(R.id.change) TextView change;
 
@@ -121,11 +122,13 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
         }
 
         @Override
-        public void onClick(View v) {
+        public void onClick(View view) {
             int adapterPosition = getAdapterPosition();
+
             mCursor.moveToPosition(adapterPosition);
-            int symbolColumn = cursor.getColumnIndex(Contract.Quote.COLUMN_SYMBOL);
-            clickHandler.onClick(cursor.getString(symbolColumn));
+            final ClickDetails details = new ClickDetails(mCursor);
+
+            clickHandler.onClick(details, view);
         }
     }
 
@@ -171,6 +174,35 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
             } catch (Exception e) {
                 return false;
             }
+        }
+    }
+
+    class ClickDetails {
+        public String symbol, name;
+        float price, absoluteChange, percentageChange;
+
+        private ClickDetails(final Cursor cursor) {
+            symbol = cursor.getString(
+                cursor.getColumnIndex(Contract.Quote.COLUMN_SYMBOL));
+            name = cursor.getString(
+                cursor.getColumnIndex(Contract.Quote.COLUMN_NAME));
+
+            price = cursor.getFloat(
+                cursor.getColumnIndex(Contract.Quote.COLUMN_PRICE));
+
+            absoluteChange = cursor.getFloat(
+                cursor.getColumnIndex(Contract.Quote.COLUMN_ABSOLUTE_CHANGE));
+            percentageChange = cursor.getFloat(
+                cursor.getColumnIndex(Contract.Quote.COLUMN_PERCENTAGE_CHANGE));
+        }
+
+        Intent getIntent() {
+            return new Intent()
+                .putExtra("symbol", symbol)
+                .putExtra("name", name)
+                .putExtra("price", price)
+                .putExtra("absChange", absoluteChange)
+                .putExtra("perChange", percentageChange);
         }
     }
 }

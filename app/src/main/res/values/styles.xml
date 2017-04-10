@@ -1,9 +1,11 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
 
-    <style name="AppTheme" parent="Theme.AppCompat">
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="PercentChangeTextStyle">
@@ -13,11 +15,19 @@
     </style>
 
     <style name="BidPriceTextStyle">
+        <item name="android:textColor">#FFF</item>
         <item name="android:textSize">20sp</item>
     </style>
 
     <style name="StockSymbolTextStyle">
+        <item name="android:textColor">#FFF</item>
         <item name="android:textSize">25sp</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="StockNameTextStyle">
+        <item name="android:textColor">#FFF</item>
+        <item name="android:alpha">0.5</item>
+        <item name="android:textSize">12sp</item>
     </style>
 </resources>
