@@ -11,11 +11,14 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 import com.udacity.stockhawk.ui.DetailActivity;
+import com.udacity.stockhawk.ui.MainActivity;
 
 
 public class StockListWidgetProvider extends AppWidgetProvider {
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Each widget of this kind...
@@ -48,8 +51,8 @@ public class StockListWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
 
         // If intent is our "data updated!!" or system's "widget updated!!" action
-        if (intent.getAction().equals(QuoteSyncJob.ACTION_DATA_UPDATED)
-            || intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
+        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE) ||
+            intent.getAction().equals(QuoteSyncJob.ACTION_DATA_UPDATED)) {
 
             final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 

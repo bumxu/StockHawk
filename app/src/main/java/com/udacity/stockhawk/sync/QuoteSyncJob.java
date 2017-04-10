@@ -33,6 +33,7 @@ import yahoofinance.quotes.stock.StockQuote;
 public final class QuoteSyncJob {
     private static final int ONE_OFF_ID = 2;
     public static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_SYNC_COMPLETED = "com.udacity.stockhawk.ACTION_SYNC_COMPLETED";
     public static final String ACTION_UNKNOWN_SYMBOLS = "com.udacity.stockhawk.ACTION_UNKNOWN_SYMBOLS";
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
@@ -61,6 +62,7 @@ public final class QuoteSyncJob {
             Timber.d(stockCopy.toString());
 
             if (stockArray.length == 0) {
+                context.sendBroadcast(new Intent(ACTION_SYNC_COMPLETED));
                 return;
             }
 
@@ -131,8 +133,7 @@ public final class QuoteSyncJob {
                     Contract.Quote.URI,
                     quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
 
-            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
-            context.sendBroadcast(dataUpdatedIntent);
+            context.sendBroadcast(new Intent(ACTION_SYNC_COMPLETED));
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
