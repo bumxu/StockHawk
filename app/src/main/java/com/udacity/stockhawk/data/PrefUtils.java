@@ -43,6 +43,9 @@ public final class PrefUtils {
         String key = context.getString(R.string.pref_stocks_key);
         Set<String> stocks = new HashSet<>(getStocks(context));
 
+        // Prevent duplicated symbols
+        symbol = symbol.toUpperCase();
+
         if (add) {
             stocks.add(symbol);
         } else {
