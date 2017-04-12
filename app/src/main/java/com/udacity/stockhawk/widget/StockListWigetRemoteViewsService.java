@@ -9,34 +9,17 @@ import android.widget.RemoteViewsService;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Locale;
+import com.udacity.stockhawk.support.FormatHelper;
 
 
 public class StockListWigetRemoteViewsService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(final Intent intent) {
         return new RemoteViewsFactory() {
-            // TODO: Put out!
-            private DecimalFormat dollarFormat;
-            private DecimalFormat dollarFormatWithPlus;
-            private DecimalFormat percentageFormat;
-
             private Cursor mCursor;
 
             @Override
             public void onCreate() {
-                dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
-
-                dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
-                dollarFormatWithPlus.setPositivePrefix("+$");
-
-                percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
-                percentageFormat.setMaximumFractionDigits(2);
-                percentageFormat.setMinimumFractionDigits(2);
-                percentageFormat.setPositivePrefix("+");
             }
 
             @Override
@@ -91,14 +74,14 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
                 // Set the name
                 views.setTextViewText(R.id.text_symbol, symbol);
                 // Set the formated price
-                views.setTextViewText(R.id.price, dollarFormat.format(price));
+                views.setTextViewText(R.id.price, FormatHelper.formatDollar(price));
 
                 // Set the variation according with preferences
                 final String value;
                 if (displayMode.equals(getString(R.string.pref_display_mode_absolute_key))) {
-                    value = dollarFormatWithPlus.format(absChange);
+                    value = FormatHelper.formatSignedDollar(absChange);
                 } else {
-                    value = percentageFormat.format(perChange / 100);
+                    value = FormatHelper.formatRelativeChange(perChange);
                 }
                 views.setTextViewText(R.id.change, value);
 

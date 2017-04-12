@@ -9,7 +9,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
 import android.transition.Transition;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,15 +26,13 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.udacity.stockhawk.R;
+import com.udacity.stockhawk.support.FormatHelper;
 import com.udacity.stockhawk.support.HistoricalDataLoader;
 import com.udacity.stockhawk.support.TransitionListenerShortener;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -117,13 +114,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         // Save the symbol globally
         mSymbol = getIntent().getStringExtra("symbol");
 
-        // TODO: Put out!
-        DecimalFormat dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
-        DecimalFormat percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
-        percentageFormat.setMaximumFractionDigits(2);
-        percentageFormat.setMinimumFractionDigits(2);
-        percentageFormat.setPositivePrefix("+");
-
         // Temporal data
         final String name = intent.getStringExtra("name");
         final float price = intent.getFloatExtra("price", 0);
@@ -133,8 +123,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mSymbolTextView.setText(mSymbol);
         mNameTextView.setText(name);
         // · · ·
-        mPriceTextView.setText(dollarFormat.format(price));
-        mChangeTextView.setText(percentageFormat.format(perChange / 100));
+        mPriceTextView.setText(FormatHelper.formatDollar(price));
+        mChangeTextView.setText(FormatHelper.formatRelativeChange(perChange));
     }
 
     /**
@@ -184,15 +174,15 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         xAxis.setDrawGridLines(true);
         xAxis.setCenterAxisLabels(true);
         xAxis.setValueFormatter(new IAxisValueFormatter() {
-            // TODO: Put out!
-            private final int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_YEAR;
-
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 if (value < 0 || value >= mHistoricalData.size()) {
                     return null;
                 }
-                return DateUtils.formatDateTime(DetailActivity.this, mHistoricalData.get((int) value).first.getTime(), flags);
+
+                return FormatHelper.formatShortDate(
+                    DetailActivity.this,
+                    mHistoricalData.get((int) value).first.getTime());
             }
         });
 
@@ -218,14 +208,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
         // Tap actions
         mStockChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            // TODO: Put out!
-            private final int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_YEAR;
-
             @Override
             public void onValueSelected(Entry e, Highlight h) {
                 int index = (int) e.getX();
-                DecimalFormat dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
-
 
                 if (index < 0 || index >= mHistoricalData.size()) {
                     onNothingSelected();
@@ -235,9 +220,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 // TODO: i18n!
                 mCurrentDataTextView.setText(
                     "Semana "
-                        + DateUtils.formatDateTime(DetailActivity.this, mHistoricalData.get(index).first.getTime(), flags)
+                        + FormatHelper.formatShortDate(DetailActivity.this, mHistoricalData.get(index).first.getTime())
                         + "  ·  "
-                        + dollarFormat.format(e.getY())
+                        + FormatHelper.formatDollar(e.getY())
                 );
             }
 
