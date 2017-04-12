@@ -14,6 +14,8 @@ public final class Contract {
     private static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
 
     private Contract() {
+        // Oh! good tip, thanks
+        throw new AssertionError("You cannot instance this class!");
     }
 
     @SuppressWarnings("unused")

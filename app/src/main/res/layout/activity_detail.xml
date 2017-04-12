@@ -82,8 +82,10 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/price_detail_pill"
                 android:paddingBottom="2dp"
+                android:paddingEnd="8dp"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
+                android:paddingStart="8dp"
                 android:paddingTop="2dp">
 
                 <TextView

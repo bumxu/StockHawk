@@ -8,7 +8,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 
-public class FormatHelper {
+public final class FormatHelper {
     private static final int SHORT_DATE_FLAGS;
 
     private static final DecimalFormat dollarFormat;
