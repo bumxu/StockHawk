@@ -119,7 +119,8 @@
                     android:paddingStart="2dp"
                     android:paddingTop="1dp"
                     android:src="@drawable/ic_price_up"
-                    android:tint="@color/positiveGreen"/>
+                    android:tint="@color/positiveGreen"
+                    tools:ignore="ContentDescription"/>
 
             </LinearLayout>
         </LinearLayout>
