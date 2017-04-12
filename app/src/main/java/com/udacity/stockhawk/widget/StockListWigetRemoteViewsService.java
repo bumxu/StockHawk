@@ -87,7 +87,7 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
 
                 // Set the background color for variation
                 views.setInt(R.id.change, "setBackgroundResource",
-                    (absChange >= 0)
+                    (absChange > 0)
                         ? R.drawable.change_pill_green
                         : R.drawable.change_pill_red);
 
