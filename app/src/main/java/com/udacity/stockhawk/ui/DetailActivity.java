@@ -13,6 +13,7 @@ import android.transition.Transition;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -50,6 +51,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @BindView(R.id.text_name) TextView mNameTextView;
     @BindView(R.id.text_price) TextView mPriceTextView;
     @BindView(R.id.text_change) TextView mChangeTextView;
+    @BindView(R.id.image_change) ImageView mChangeArrowImageView;
     @BindView(R.id.text_curr_data) TextView mCurrentDataTextView;
     // · · ·
     @BindView(R.id.chart) LineChart mStockChart;
@@ -118,6 +120,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         final String name = intent.getStringExtra("name");
         final float price = intent.getFloatExtra("price", 0);
         final float perChange = intent.getFloatExtra("perChange", 0);
+        final float absChange = intent.getFloatExtra("absChange", 0);
 
         // Fill
         mSymbolTextView.setText(mSymbol);
@@ -125,6 +128,11 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         // · · ·
         mPriceTextView.setText(FormatHelper.formatDollar(price));
         mChangeTextView.setText(FormatHelper.formatRelativeChange(perChange));
+        // · · ·
+        if (absChange <= 0) {
+            mChangeArrowImageView.setImageResource(R.drawable.ic_price_down);
+            mChangeArrowImageView.setColorFilter(ContextCompat.getColor(this, R.color.negativeRed));
+        }
     }
 
     /**

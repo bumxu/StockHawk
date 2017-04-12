@@ -112,13 +112,14 @@
                     tools:text="99.99%"/>
 
                 <ImageView
+                    android:id="@+id/image_change"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:paddingStart="2dp"
                     android:paddingTop="1dp"
-                    android:src="@drawable/ic_price_down"
-                    android:tint="@color/negativeRed"/>
+                    android:src="@drawable/ic_price_up"
+                    android:tint="@color/positiveGreen"/>
 
             </LinearLayout>
         </LinearLayout>
