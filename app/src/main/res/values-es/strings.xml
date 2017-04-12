@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_add">Añadir</string>
+    <string name="dialog_hint">Símbolo (p.ej. GOOG)</string>
+    <string name="dialog_title">Añadir valor</string>
+    <string name="snackbar_invalid_symbols">Los siguientes símbolos no existen:</string>
+    <string name="widget_loading_msg">" Esperando datos…"</string>
+    <string name="error_no_stocks">¡Ningún valor añadido! Utiliza el botón flotante para añadir uno.</string>
+    <string name="error_no_network">¡No hay conexión! Los valores se actualizarán en cuanto esté disponible.</string>
+    <string name="toast_no_connectivity">Se actualizarán cuando haya conexión.</string>
+    <string name="toast_stock_added_no_connectivity">Símbolo %s añadido. Se actualizará cuando haya conexión.</string>
+    <string name="widget_empty_msg">¡Tu lista de valores está vacía! Toca para abrir Stock Hawk.</string>
+    <string name="chart_tip_current">Semana %1$s  ·  %2$s</string>
+    <string name="chart_tip_help">Puedes tocar, mover o ampliar el gráfico…</string>
+    <string name="action_change_units">Mostrar el cambio como porcentaje o en dólares</string>
+    <string name="action_fab_add_stock">Añadir valor</string>
+</resources>
