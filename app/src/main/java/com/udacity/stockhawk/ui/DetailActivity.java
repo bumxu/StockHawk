@@ -225,12 +225,11 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                     return;
                 }
 
-                // TODO: i18n!
                 mCurrentDataTextView.setText(
-                    "Semana "
-                        + FormatHelper.formatShortDate(DetailActivity.this, mHistoricalData.get(index).first.getTime())
-                        + "  ·  "
-                        + FormatHelper.formatDollar(e.getY())
+                    getString(
+                        R.string.chart_tip_current,
+                        FormatHelper.formatShortDate(DetailActivity.this, mHistoricalData.get(index).first.getTime()),
+                        FormatHelper.formatDollar(e.getY()))
                 );
             }
 
