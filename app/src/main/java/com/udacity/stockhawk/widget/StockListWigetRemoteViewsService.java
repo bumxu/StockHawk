@@ -32,9 +32,9 @@ public class StockListWigetRemoteViewsService extends RemoteViewsService {
                 final long identityToken = Binder.clearCallingIdentity();
                 ///
                 mCursor = getContentResolver().query(
-                    // TODO: Reduce DB load
                     Contract.Quote.URI,
-                    null, null, null,
+                    Contract.Quote.QUERY_COLUMNS.toArray(new String[]{}),
+                    null, null,
                     Contract.Quote.COLUMN_SYMBOL + " ASC");
                 ///
                 Binder.restoreCallingIdentity(identityToken);

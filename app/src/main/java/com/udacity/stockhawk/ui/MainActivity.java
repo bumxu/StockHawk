@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // itself ("forceLoad") when provider data change.
         return new CursorLoader(this,
             Contract.Quote.URI,
-            Contract.Quote.QUOTE_COLUMNS.toArray(new String[]{}),
+            Contract.Quote.QUERY_COLUMNS.toArray(new String[]{}),
             null, null, Contract.Quote.COLUMN_SYMBOL);
     }
 
