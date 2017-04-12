@@ -1,6 +1,8 @@
 package com.udacity.stockhawk.data;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -39,7 +41,7 @@ public final class PrefUtils {
 
     private static void editStockPref(Context context, String symbol, Boolean add) {
         String key = context.getString(R.string.pref_stocks_key);
-        Set<String> stocks = getStocks(context);
+        Set<String> stocks = new HashSet<>(getStocks(context));
 
         if (add) {
             stocks.add(symbol);
@@ -86,6 +88,10 @@ public final class PrefUtils {
         }
 
         editor.apply();
+
+        // Update widget
+        Intent updateWidgetIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        context.sendBroadcast(updateWidgetIntent);
     }
 
 }

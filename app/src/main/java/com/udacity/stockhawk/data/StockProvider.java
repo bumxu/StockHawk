@@ -3,6 +3,7 @@ package com.udacity.stockhawk.data;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,9 +11,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.udacity.stockhawk.sync.QuoteSyncJob;
+
 
 public class StockProvider extends ContentProvider {
-
     private static final int QUOTE = 100;
     private static final int QUOTE_FOR_SYMBOL = 101;
 
@@ -26,7 +28,6 @@ public class StockProvider extends ContentProvider {
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_QUOTE_WITH_SYMBOL, QUOTE_FOR_SYMBOL);
         return matcher;
     }
-
 
     @Override
     public boolean onCreate() {
@@ -88,23 +89,24 @@ public class StockProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Uri returnUri;
+        final long inserted;
 
         switch (uriMatcher.match(uri)) {
             case QUOTE:
-                db.insert(
+                inserted =
+                    db.insert(
                         Contract.Quote.TABLE_NAME,
                         null,
                         values
-                );
+                    );
                 returnUri = Contract.Quote.URI;
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }
 
-        Context context = getContext();
-        if (context != null){
-            context.getContentResolver().notifyChange(uri, null);
+        if (inserted != -1) {
+            notifyChange(uri);
         }
 
         return returnUri;
@@ -141,10 +143,7 @@ public class StockProvider extends ContentProvider {
         }
 
         if (rowsDeleted != 0) {
-            Context context = getContext();
-            if (context != null){
-                context.getContentResolver().notifyChange(uri, null);
-            }
+            notifyChange(uri);
         }
 
         return rowsDeleted;
@@ -177,16 +176,22 @@ public class StockProvider extends ContentProvider {
                     db.endTransaction();
                 }
 
-                Context context = getContext();
-                if (context != null) {
-                    context.getContentResolver().notifyChange(uri, null);
-                }
+                notifyChange(uri);
 
                 return returnCount;
             default:
                 return super.bulkInsert(uri, values);
         }
+    }
 
+    private void notifyChange(Uri uri) {
+        Context context = getContext();
 
+        if (context != null) {
+            // Notify observers
+            context.getContentResolver().notifyChange(uri, null);
+            // Notify others (widgets)
+            context.sendBroadcast(new Intent(QuoteSyncJob.ACTION_DATA_UPDATED));
+        }
     }
 }

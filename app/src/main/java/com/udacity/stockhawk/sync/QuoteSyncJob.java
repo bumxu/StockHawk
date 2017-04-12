@@ -28,10 +28,13 @@ import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
 import yahoofinance.quotes.stock.StockQuote;
 
-public final class QuoteSyncJob {
 
+@SuppressWarnings("WeakerAccess")
+public final class QuoteSyncJob {
     private static final int ONE_OFF_ID = 2;
-    private static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATA_UPDATED = "com.udacity.stockhawk.ACTION_DATA_UPDATED";
+    public static final String ACTION_SYNC_COMPLETED = "com.udacity.stockhawk.ACTION_SYNC_COMPLETED";
+    public static final String ACTION_UNKNOWN_SYMBOLS = "com.udacity.stockhawk.ACTION_UNKNOWN_SYMBOLS";
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
@@ -41,15 +44,16 @@ public final class QuoteSyncJob {
     }
 
     static void getQuotes(Context context) {
-
         Timber.d("Running sync job");
 
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -YEARS_OF_HISTORY);
 
-        try {
+        // Storage for unknown symbols
+        ArrayList<String> unknownSymbols = new ArrayList<>();
 
+        try {
             Set<String> stockPref = PrefUtils.getStocks(context);
             Set<String> stockCopy = new HashSet<>();
             stockCopy.addAll(stockPref);
@@ -58,6 +62,7 @@ public final class QuoteSyncJob {
             Timber.d(stockCopy.toString());
 
             if (stockArray.length == 0) {
+                context.sendBroadcast(new Intent(ACTION_SYNC_COMPLETED));
                 return;
             }
 
@@ -68,19 +73,38 @@ public final class QuoteSyncJob {
 
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
+            // Update ShredPreference (maybe it has changed during the request)
+            stockPref = PrefUtils.getStocks(context);
+
             while (iterator.hasNext()) {
                 String symbol = iterator.next();
 
+                // If now it's not included, ignore
+                // (This only REDUCE the failure probability)
+                if (!stockPref.contains(symbol)) {
+                    continue;
+                }
 
-                Stock stock = quotes.get(symbol);
-                StockQuote quote = stock.getQuote();
+                Stock stock;
+                String name;
+                float price, change, percentChange;
 
-                float price = quote.getPrice().floatValue();
-                float change = quote.getChange().floatValue();
-                float percentChange = quote.getChangeInPercent().floatValue();
+                try {
+                    stock = quotes.get(symbol);
+                    StockQuote quote = stock.getQuote();
 
-                // WARNING! Don't request historical data for a stock that doesn't exist!
-                // The request will hang forever X_x
+                    name = stock.getName();
+
+                    price = quote.getPrice().floatValue();
+                    change = quote.getChange().floatValue();
+                    percentChange = quote.getChangeInPercent().floatValue();
+                } catch (NullPointerException e) {
+                    // This symbol doesn't exist
+                    unknownSymbols.add(symbol);
+                    // Next one
+                    continue;
+                }
+
                 List<HistoricalQuote> history = stock.getHistory(from, to, Interval.WEEKLY);
 
                 StringBuilder historyBuilder = new StringBuilder();
@@ -94,6 +118,7 @@ public final class QuoteSyncJob {
 
                 ContentValues quoteCV = new ContentValues();
                 quoteCV.put(Contract.Quote.COLUMN_SYMBOL, symbol);
+                quoteCV.put(Contract.Quote.COLUMN_NAME, name);
                 quoteCV.put(Contract.Quote.COLUMN_PRICE, price);
                 quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                 quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
@@ -105,13 +130,19 @@ public final class QuoteSyncJob {
 
             }
 
-            context.getContentResolver()
-                    .bulkInsert(
-                            Contract.Quote.URI,
-                            quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
+            // If there is unknown symbols, notify listeners
+            if (unknownSymbols.size() > 0) {
+                final Intent unknownSymbolsIntent = new Intent(ACTION_UNKNOWN_SYMBOLS);
+                unknownSymbolsIntent.putStringArrayListExtra("symbols", unknownSymbols);
+                context.sendBroadcast(unknownSymbolsIntent);
+            }
 
-            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
-            context.sendBroadcast(dataUpdatedIntent);
+            context.getContentResolver()
+                .bulkInsert(
+                    Contract.Quote.URI,
+                    quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
+
+            context.sendBroadcast(new Intent(ACTION_SYNC_COMPLETED));
 
         } catch (IOException exception) {
             Timber.e(exception, "Error fetching stock quotes");
@@ -121,14 +152,11 @@ public final class QuoteSyncJob {
     private static void schedulePeriodic(Context context) {
         Timber.d("Scheduling a periodic task");
 
-
         JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, QuoteJobService.class));
 
-
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(PERIOD)
-                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
-
+            .setPeriodic(PERIOD)
+            .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
@@ -146,7 +174,7 @@ public final class QuoteSyncJob {
     public static synchronized void syncImmediately(Context context) {
 
         ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
             Intent nowIntent = new Intent(context, QuoteIntentService.class);
@@ -157,16 +185,12 @@ public final class QuoteSyncJob {
 
 
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
+                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
 
 
             JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
             scheduler.schedule(builder.build());
-
-
         }
     }
-
-
 }

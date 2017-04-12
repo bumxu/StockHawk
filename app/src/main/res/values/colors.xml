@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorBackground">#263c46</color>
+    <color name="colorItemBackground">#364a54</color>
 
-    <color name="material_blue_500">#2196F3</color>
-    <color name="material_red_700">#D50000</color>
-    <color name="material_green_700">#00C853</color>
+    <color name="colorPrimary">#00acc1</color>
+    <color name="colorPrimaryDark">#0097a7</color>
 
+    <color name="colorAccent">#FFAE00</color>
+
+    <color name="negativeRed">#c23e3e</color>
+    <color name="positiveGreen">#68cc6c</color>
+
+    <color name="widgetBackground">#bb263c46</color>
+    <color name="widgetItemBackground">#e3364a54</color>
 </resources>
